@@ -1,0 +1,66 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+  base = "client/"
+
+[build.environment]
+  NODE_VERSION = "18"
+  VITE_API_URL = "https://ai-code-debugger.onrender.com"
+
+# API Proxy - Redirect frontend API calls to backend
+[[redirects]]
+  from = "/debug"
+  to = "https://ai-code-debugger.onrender.com/debug"
+  status = 200
+  force = true
+  headers = {X-Forwarded-Host = "ai-code-debugger.netlify.app"}
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://ai-code-debugger.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# SPA Routing - Handle client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Production optimizations
+[context.production]
+  command = "npm run build"
+  environment = { VITE_API_URL = "https://ai-code-debugger.onrender.com" }
+
+[context.deploy-preview]
+  command = "npm run build"
+  environment = { VITE_API_URL = "https://ai-code-debugger.onrender.com" }
+
+[context.branch-deploy]
+  command = "npm run build"
+  environment = { VITE_API_URL = "https://ai-code-debugger.onrender.com" }
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
